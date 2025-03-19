@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s3manager
+  labels:
+    app: s3manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: s3manager
+  template:
+    metadata:
+      labels:
+        app: s3manager
+    spec:
+      containers:
+        - name: s3manager
+          image: myregistry.com/s3manager:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3manager-secret
+                  key: access-key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3manager-secret
+                  key: secret-key
+            - name: AWS_REGION
+              value: "default"
+            - name: S3_BUCKET
+              value: "mein-hcp-bucket"
+            - name: S3_ENDPOINT
+              value: "https://hcp.local:443"   # Lokaler HCP-S3 Store
+            - name: S3_FORCE_PATH_STYLE
+              value: "true"   # Wichtig für HCP!
+            - name: S3_USE_SSL
+              value: "true"
+            - name: S3_SKIP_TLS_VERIFY
+              value: "true"   # Falls HCP ein selbstsigniertes Zertifikat hat742je8286.17781
+              
